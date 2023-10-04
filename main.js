@@ -1,58 +1,35 @@
 import "./style.css";
-import {BLOCK_SIZE, BOARD_HEIGHT, BOARD_WIDTH, EVENT_MOVEMENTS} from './const.js'
-
+import {
+  BLOCK_SIZE,
+  BOARD_HEIGHT,
+  BOARD_WIDTH,
+  EVENT_MOVEMENTS,
+} from "./const.js";
 
 // Inicializa canvas
 const canvas = document.querySelector("canvas");
 const context = canvas.getContext("2d");
-const $score = document.querySelector('span')
-const $section = document.querySelector('section')
+const $score = document.querySelectorAll("span")
+
+const $section = document.querySelector("section");
 
 let score = 0;
+let level = 1
+
+const audio = document.createElement("audio");
+audio.preload = "auto";
 
 canvas.width = BLOCK_SIZE * BOARD_WIDTH;
 canvas.height = BLOCK_SIZE * BOARD_HEIGHT;
 
 context.scale(BLOCK_SIZE, BLOCK_SIZE);
 
-// BOARD
-// const board = [
-//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//   [1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1],
-// ];
+const board = createBoard(BOARD_WIDTH, BOARD_HEIGHT);
 
-const board = createBoard(BOARD_WIDTH, BOARD_HEIGHT)
-
-function createBoard(width, height)  {
-  return Array(height).fill().map(() => Array(width).fill(0))
+function createBoard(width, height) {
+  return Array(height)
+    .fill()
+    .map(() => Array(width).fill(0));
 }
 
 // Pieza
@@ -67,35 +44,78 @@ const piece = {
 
 // Piezas Random
 const PIECES = [
+  // 🟦🟦
+  // 🟦🟦
   [
     [1, 1],
-    [1, 1]
+    [1, 1],
   ],
-  [
-    [1, 1, 1, 1]
-  ],
+  // 🟦🟦🟦🟦
+  [[1, 1, 1, 1]],
+  [[1], [1], [1], [1]],
+  // 🟦🟦🟦
+  //   🟦
   [
     [0, 1, 0],
-    [1, 1, 1]
+    [1, 1, 1],
   ],
+  [
+    [1, 1, 1],
+    [0, 1, 0],
+  ],
+  [
+    [0, 1],
+    [1, 1],
+    [0, 1],
+  ],
+  [
+    [1, 0],
+    [1, 1],
+    [1, 0],
+  ],
+
+  // 🟦🟦
+  //   🟦🟦
   [
     [1, 1, 0],
-    [0, 1, 1]
+    [0, 1, 1],
+  ],
+
+  [
+    [0, 1, 1],
+    [1, 1, 0],
+  ],
+  [
+    [0, 1],
+    [1, 1],
+    [1, 0],
   ],
   [
     [1, 0],
+    [1, 1],
+    [0, 1],
+  ],
+  // 🟦
+  // 🟦🟦🟦🟦
+  [
     [1, 0],
-    [1, 1]
-  ]
-  
+    [1, 0],
+    [1, 1],
+  ],
+  [
+    [1, 0, 0],
+    [1, 1, 1],
+  ],
+  [
+    [1, 1, 1],
+    [1, 0, 0],
+  ],
+  [
+    [1, 1],
+    [0, 1],
+    [0, 1],
+  ],
 ];
-
-// Game Loop
-
-/*function update (){
-  draw()
-  window.requestAnimationFrame(update)
-}*/
 
 function draw() {
   context.fillStyle = "#000";
@@ -104,7 +124,7 @@ function draw() {
   board.forEach((row, y) => {
     row.forEach((value, x) => {
       if (value == 1) {
-        context.fillStyle = "yellow";
+        context.fillStyle = "white";
         context.fillRect(x, y, 1, 1);
       }
     });
@@ -119,7 +139,9 @@ function draw() {
     });
   });
 
-  $score.innerText = score
+  // Score en SPAN
+  $score[0].innerText = score;
+  $score[1].innerText = level;
 }
 
 // Movimiento piezas
@@ -143,24 +165,23 @@ document.addEventListener("keydown", (event) => {
     solidifyPiece();
     removeRows();
   }
-  if (event.key == EVENT_MOVEMENTS.UP){
-    const rotated = []
+  if (event.key == EVENT_MOVEMENTS.UP) {
+    const rotated = [];
 
-    for (let i = 0; i < piece.shape[0].length; i++){
-      const row = []
+    for (let i = 0; i < piece.shape[0].length; i++) {
+      const row = [];
 
-      for (let j = piece.shape.length-1 ; j >= 0; j--){
-        row.push(piece.shape[j][i])
+      for (let j = piece.shape.length - 1; j >= 0; j--) {
+        row.push(piece.shape[j][i]);
       }
 
-      rotated.push(row)
+      rotated.push(row);
     }
-    const previousShape = piece.shape
-    piece.shape = rotated
-    if (checkCollision()){
-      piece.shape = previousShape
+    const previousShape = piece.shape;
+    piece.shape = rotated;
+    if (checkCollision()) {
+      piece.shape = previousShape;
     }
-    
   }
 });
 
@@ -183,21 +204,25 @@ function solidifyPiece() {
     });
   });
 
-  
   // Reset position
-  piece.position.x = Math.floor(BOARD_WIDTH/2 -2);
+  piece.position.x = Math.floor(Math.random() * (11 - 1) + 1);
   piece.position.y = 0;
   // GET Random piece
-  piece.shape = PIECES[Math.floor(Math.random() * PIECES.length)]
+  piece.shape = PIECES[Math.floor(Math.random() * PIECES.length)];
   // GAME OVER
-  if (checkCollision()){
-    window.alert('Game Over!')
-    board.forEach((row) => row.fill(0))
+  if (checkCollision()) {
+    level = 1
+    audio.pause()
+    window.alert('Game Over'); 
+    board.forEach((row) => row.fill(0));
+    
+    playMusic();
   }
 }
 
 function removeRows() {
   const rowsToRemove = [];
+
   board.forEach((row, y) => {
     if (row.every((value) => value == 1)) {
       rowsToRemove.push(y);
@@ -208,13 +233,12 @@ function removeRows() {
     board.splice(y, 1);
     const newRow = Array(BOARD_WIDTH).fill(0);
     board.unshift(newRow);
-    score += 10
+    score += 10;
+    if (score % 20 == 0 && level < 9){
+      level++
+    }
   });
 }
-
-
-
-
 
 // Auto drop
 let dropCounter = 0;
@@ -225,7 +249,9 @@ function update(time = 0) {
   lastTime = time;
   dropCounter += deltaTime;
 
-  if (dropCounter > 1000) {
+   
+
+  if (dropCounter > 1000 - ( level * 100 ) ) { // TIEMPO DE CAIDA
     piece.position.y++;
     if (checkCollision()) {
       piece.position.y--;
@@ -239,14 +265,19 @@ function update(time = 0) {
   window.requestAnimationFrame(update);
 }
 
+function playMusic() {
+  audio.src = `./theme${Math.floor(Math.random() * 3 + 1)}.mp3`;
+  
+  audio.volume = 0.5;
+  audio.play();
+  audio.loop = true;
+}
 
-$section.addEventListener('click', () => {
+// GAME START
+
+$section.addEventListener("click", () => {
   update();
-  $section.remove()
-  const audio = new window.Audio('./tetris.mp3')
-  audio.volume= 0.5
- audio.play()
-  audio.loop = true
-})
+  $section.remove();
 
-
+  playMusic();
+});
